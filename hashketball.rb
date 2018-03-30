@@ -118,8 +118,6 @@ def game_hash
     }
 end
 
-#binding.pry
-
 def all_players
     game_hash[:home][:players].merge(game_hash[:away][:players])
 end
@@ -187,3 +185,20 @@ def big_shoe_rebounds
     end
 end
 
+#BONUS 
+def most_points_scored
+    
+end
+
+def winning_team
+
+end
+
+def player_with_longest_name
+
+end
+
+#SUPER BONUS
+def long_name_steals_a_ton?
+
+end
