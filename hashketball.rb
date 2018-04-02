@@ -120,30 +120,41 @@ end
 
 def all_players
     game_hash[:home][:players].merge(game_hash[:away][:players])
+#looks like {"AA"=>{..},"RE"=>{..},"BL"=>{..}}
 end
 
 def num_points_scored(name)
-    all_players.fetch(name)[:points]
+    all_players[name][:points]
 end
 
 def shoe_size(name)
-    all_players.fetch(name)[:shoe]
+    all_players[name][:shoe]
 end
 
 def team_colors(team)
     game_hash.each do |location, team_data|
         team_data.each do |attribute, data|
             if data == team
-                return team_data.fetch(:colors)
+                return team_data[:colors]
             end
         end
     end 
 end
 
+def total_dunks
+    total_dunks = 0
+
+    all_players.each do |name, data_points|
+        total_dunks += data_points[:slam_dunks]
+    end
+
+    total_dunks
+end
+
 def team_names
     teams = []
     game_hash.each do |location, team_data|
-        teams.push(team_data.fetch(:team_name))
+        teams.push(team_data[:team_name])
     end
 
     return teams
@@ -152,7 +163,7 @@ end
 def player_numbers(team)
     team_jerseys = []
     game_hash.each do |location, team_data|
-        if team_data.fetch(:team_name) == team
+        if team_data[:team_name] == team
             team_data[:players].each do |name, stats|
                 team_jerseys.push(stats[:number])
             end
@@ -163,42 +174,96 @@ def player_numbers(team)
 end
 
 def player_stats(name)
-    all_players.fetch(name)
+    all_players[name]
 end
 
 def big_shoe_rebounds
-    ordered_sizes = []
-    all_players.each do |name, stats|
-        stats.each do |category, data|
-            ordered_sizes.push(stats.fetch(:shoe))
-        end
-    end
-
-    ordered_sizes.sort{|x,y| y <=> x}[0]
-
-    all_players.each do |name, stats|
-        stats.each do |cat, data|
-            if ordered_sizes[0] == stats.fetch(:shoe)
-                return stats.fetch(:rebounds)
-            end
-        end
-    end
+    name = most_player(:shoe)[0]
+    all_players[name][:rebounds]
 end
 
 #BONUS 
+def most_player(statistic) #based on the stat/category argument, returns name and value of the person with the highest stat)
+    most = {}
+    all_players.each do |name, data|
+        data.each do |stat, value|
+            if stat == statistic
+                most[name] = value
+            end
+        end
+    end
+    most.sort_by {|name, stat| stat}.last
+end
+
 def most_points_scored
-    
+    most_player(:points)[0]
 end
 
 def winning_team
+    home_points = 0
+    away_points = 0
 
+    game_hash.each do |location, data_hash|
+        data_hash[:players].each do |names, stats|
+            if location == :home
+                home_points += stats[:points]
+            else away_points += stats[:points]
+            end
+        end
+    end
+
+    if home_points > away_points
+        return game_hash[:home][:team_name]
+    else return game_hash[:away][:team_name]
+    end
 end
 
 def player_with_longest_name
-
+    most = []
+    all_players.each do |name, data|
+        most.push(name)
+    end
+    most.sort_by {|name| name.length}.last
 end
 
-#SUPER BONUS
+# #SUPER BONUS
 def long_name_steals_a_ton?
-
+    player_with_longest_name == most_player(:steals)[0]
 end
+
+
+
+# module HashDigAndCollect
+#     def dig_and_collect *keys
+#       keys = keys.dup
+  
+#       next_key = keys.shift
+#       return [] unless self.has_key? next_key
+  
+#       next_val = self[next_key]
+#       return [next_val] if keys.empty?
+  
+#       return next_val.dig_and_collect(*keys) if next_val.is_a? Hash
+  
+#       return [] unless next_val.is_a? Array
+#       next_val.each_with_object([]) do |v, result|
+#         inner = v.dig_and_collect(*keys)
+#         result.concat inner
+#       end
+#     end
+#   end
+  
+#   class Hash
+#     include HashDigAndCollect
+#   end
+
+# def inception3(hash)
+#     hash.each do |location, team_data|
+#         team_data.each do |attribute, data|
+#             data.each do |name, stats|
+#                 yield fx
+#             end
+#         end
+#     end
+# end
+# binding.pry
