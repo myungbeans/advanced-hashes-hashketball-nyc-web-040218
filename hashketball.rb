@@ -256,14 +256,3 @@ end
 #   class Hash
 #     include HashDigAndCollect
 #   end
-
-# def inception3(hash)
-#     hash.each do |location, team_data|
-#         team_data.each do |attribute, data|
-#             data.each do |name, stats|
-#                 yield fx
-#             end
-#         end
-#     end
-# end
-# binding.pry
